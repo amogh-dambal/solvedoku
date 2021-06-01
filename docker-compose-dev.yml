@@ -1,0 +1,8 @@
+version: '3'
+services:
+  solvedoku:
+    image: mongo:4.2.2
+    environment:
+      MONGO_INITDB_DATABASE: solvedoku-db
+    ports:
+      - 27017:27017
