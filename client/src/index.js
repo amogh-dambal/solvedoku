@@ -47,16 +47,6 @@ class Board extends React.Component {
             squares: newSquares,
             solved: false
         });
-
-        /* debugging code to ensure React components are correctly setup */
-        let tmp = 0; 
-        for (let i = 0; i < 9; i++) {
-            for (let j = 0; j < 9; j++) {
-                tmp += this.state.squares[i][j];
-            }
-        }
-        console.log("event handled. tmp updated to " + tmp + ".");
-        
     }
 
     buildBoardRows() {
