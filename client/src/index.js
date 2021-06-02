@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
+import {isValidSudoku, solveSudoku} from './sudoku.js';
 
 /* function component */
 function Square(props) {
@@ -22,7 +23,7 @@ function Solver(props) {
     return (
         <button
             className="submission-button"
-            /* onClick={TODO}*/
+            onClick={props.onClick}
         >
             Submit
         </button>
@@ -66,17 +67,47 @@ class Board extends React.Component {
         */
         const boardRows = [];
         for (let i = 0; i < 9; i++) {
-            boardRows.push(<div className="board-row">{grid[i]}</div>)
+            boardRows.push(<div key={i} className="board-row">{grid[i]}</div>)
         }
         return boardRows;
     }
 
+    onButtonClick() {
+        console.log("allsum: " + allSum(this.state.squares));
+        if (isValidSudoku(this.state.squares)) {
+            const squaresCopy = this.state.squares.slice();
+            const gridObject = {
+                squares: squaresCopy
+            };
+            const solved = solveSudoku(gridObject);
+            if (!solved) {
+                alert("Error! Unable to solve the given sudoku.");
+            }
+            this.setState({
+                squares: gridObject.squares,
+                solved: true
+            });
+        }
+        // log an error in some way. not sure how 
+        else {
+            console.log("You have entered an invalid Sudoku. Please try again.");
+        }
+
+    }
+
     render() {
         const boardRows = this.buildBoardRows(); 
+        /* todo: fix the CSS here: the solver component is way too far down. */
         return (
             <div>
-                {boardRows}
+                <div>
+                    {boardRows}
+                </div>
+                <div>
+                    <Solver onClick={() => {this.onButtonClick()}}/>
+                </div>             
             </div>
+   
         );
         
     }
@@ -86,12 +117,9 @@ class Board extends React.Component {
 class Game extends React.Component {
     render() {
         return (
-            <div class="game">
-                <div class="game-board">
+            <div className="game">
+                <div className="game-board">
                     <Board/>
-                </div>
-                <div>
-                    <Solver/>
                 </div>
             </div>
         );
@@ -107,9 +135,9 @@ class Game extends React.Component {
  * @post m[i][j] === null where 0 <= i, j < n
  */
 function initializeSudoku(n) {
-    let m = Array(9).fill(null).map(
+    let m = Array(9).fill(0).map(
         () => {
-            return Array(9).fill(null)
+            return Array(9).fill(0)
         }
     );
     return m;
@@ -134,6 +162,16 @@ function expand(pos) {
 
 function collapse(row, col) {
     return (9 * row) + col;
+}
+
+function allSum(squares) {
+    let tmp = 0;
+    for (let i = 0; i < 9; i++) {
+        for (let j = 0; j < 9; j++) {
+            tmp += squares[i][j]
+        }
+    }
+    return tmp;
 }
 
 // =======
