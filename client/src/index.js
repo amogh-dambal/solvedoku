@@ -174,8 +174,49 @@ function allSum(squares) {
     return tmp;
 }
 
+/*
+====
+test
+====
+*/
+class TestComponent extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            flights: []
+        }
+    }
+
+    async componentDidMount() {
+        const response = await fetch("/test");
+        const body = await response.json();
+        this.setState({flights: body});
+    }
+
+    render() {
+        const flightsView = this.state.flights;
+        return (
+            <div>
+                <h2>
+                    Flights 
+                </h2>
+                {
+                    flightsView.map(
+                        flight =>
+                        <div key={flight.id}>
+                            {flight.origin} {flight.destination}
+                            {flight.airline} {flight.flightNumber}
+                        </div>
+                    )
+                }
+            </div>
+        );
+    }
+}
+
 // =======
 ReactDOM.render(
-    <Game />,
+    <TestComponent />,
+    // <Game />,
     document.getElementById("root")
 );
