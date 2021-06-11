@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class GridSolver {
+    private Integer[][] squares;
+
     private static Integer[][] buildArray(Grid g) {
         String[] gridString = g.getGridRepresentation().split(",");
         assert gridString.length == 81;
@@ -39,14 +41,14 @@ public class GridSolver {
         return solved;
     }
 
-    private static boolean isLegalSudoku(Integer[][] squares) {
+    private boolean isLegalSudoku() {
         // check that each row, column, and subgrid is legal
-        return isLegalRows(squares) && isLegalColumns(squares) && isLegalSubgrids(squares);
+        return isLegalRows() && isLegalColumns() && isLegalSubgrids();
     }
 
-    private static boolean isLegalRows(Integer[][] squares) {
+    private boolean isLegalRows() {
         Set<Integer> duplicates;
-        for (Integer[] row : squares) {
+        for (Integer[] row : this.squares) {
             int sum = 0;
             duplicates = new HashSet<>();
             for (Integer digit : row) {
@@ -68,13 +70,13 @@ public class GridSolver {
         return true;
     }
 
-    private static boolean isLegalColumns(Integer[][] squares) {
+    private boolean isLegalColumns() {
         Set<Integer> duplicates;
         for (int j = 0; j < 9; j++) {
             int sum = 0;
             duplicates = new HashSet<>();
             for (int i = 0; i < 9; i++) {
-                Integer digit = squares[i][j];
+                Integer digit = this.squares[i][j];
                 if (digit == 0) {
                     return false;
                 }
@@ -94,22 +96,22 @@ public class GridSolver {
         return true;
     }
 
-    private static boolean isLegalSubgrids(Integer[][] squares) {
+    private boolean isLegalSubgrids() {
         boolean valid = true;
         for (int i = 0; i < 9 && valid; i += 3) {
             for (int j = 0; j < 9 && valid; j += 3) {
-                valid = isLegalSubgrid(squares, i, j);
+                valid = isLegalSubgrid(i, j);
             }
         }
         return valid;
     }
 
-    private static boolean isLegalSubgrid(Integer[][] squares, int i, int j) {
+    private boolean isLegalSubgrid(int i, int j) {
         int sum = 0;
         Set<Integer> duplicates = new HashSet<>();
         for (int x = i; x < i + 3; x++) {
             for (int y = j; y < j + 3; j++) {
-                Integer digit = squares[i][j];
+                Integer digit = this.squares[i][j];
                 if (digit == 0) {
                     return false;
                 }
@@ -132,19 +134,18 @@ public class GridSolver {
      * @param digit the digit to be placed
      * @param i the x position
      * @param j the y position
-     * @param squares the board itself
      * @return true if you can place digit, false otherwise
      */
-    private static boolean canPlace(int digit, int i, int j, Integer[][] squares) {
+    private boolean canPlace(int digit, int i, int j) {
         // validity of row
         for (int x = 0; x < 9; x++) {
-            if (squares[x][j] == digit) {
+            if (this.squares[x][j] == digit) {
                 return false;
             }
         }
         // validity of column
         for (int y = 0; y < 9; y++) {
-            if (squares[i][y] == digit) {
+            if (this.squares[i][y] == digit) {
                 return false;
             }
         }
@@ -154,7 +155,7 @@ public class GridSolver {
         for (int p = squareStartRow; p < squareStartRow + 3; p++) {
             for (int q = squareStartCol; q < squareStartCol + 3; q++) {
                 boolean onSameSquare = p == i && q == j;
-                if (!onSameSquare && squares[p][q] == digit) {
+                if (!onSameSquare && this.squares[p][q] == digit) {
                     return false;
                 }
             }
@@ -162,39 +163,27 @@ public class GridSolver {
         return true;
     }
 
-    private static class GridSolveObject {
-        public Integer[][] squares;
-
-        public GridSolveObject(Integer[][] squares) {
-            this.squares = new Integer[squares.length][squares.length];
-            for (int i = 0; i < squares.length; i++) {
-                System.arraycopy(squares[i], 0, this.squares[i], 0, squares[i].length);
-            }
-        }
-    }
-
     /**
      * simple recursive backtracking algorithm to solve
      * a Sudoku puzzle
-     * @param gso a wrapper Object so that we can modify the parameter
      * @return boolean: true if sudoku was solved, false otherwise
      */
-    private static boolean solve(GridSolveObject gso) {
-        for (int i = 0; i < gso.squares.length; i++) {
-            for (int j = 0; j < gso.squares[i].length; j++) {
-                int currentDigit = gso.squares[i][j];
+    private boolean solve() {
+        for (int i = 0; i < this.squares.length; i++) {
+            for (int j = 0; j < this.squares[i].length; j++) {
+                int currentDigit = this.squares[i][j];
 
                 if (currentDigit == 0) {
                     for (int k = 1; k <= 9; k++) {
-                        if (canPlace(k, i, j, gso.squares)){
-                            gso.squares[i][j] = k;
+                        if (canPlace(k, i, j)){
+                            this.squares[i][j] = k;
 
                             // recursive backtracking step
-                            if (solve(gso)) {
+                            if (solve()) {
                                 return true;
                             }
                             else {
-                                gso.squares[i][j] = 0;
+                                this.squares[i][j] = 0;
                             }
                         }
                     }
@@ -209,19 +198,23 @@ public class GridSolver {
     }
 
     /**
-     *
-     * @param g comma separated string. 81 digits
+     * default constructor - should be no way to construct
+     * a GridSolver object without a grid
+     * @param g the Grid object given to us by the frontend
+     */
+    public GridSolver(Grid g) {
+        this.squares = buildArray(g);
+    }
+
+    /**
+     * obtain a solution for the Sudoku puzzle
      * @return solved Grid object. null if sudoku is invalid
      */
-    public static Grid solveGrid(Grid g) {
-       Integer[][] squares = buildArray(g);
-
+    public Grid getSolution() {
        Grid solved = null;
-       if (isLegalSudoku(squares)) {
-           GridSolveObject gso = new GridSolveObject(squares);
-
-           if (solve(gso)) {
-               solved = buildGrid(gso.squares);
+       if (isLegalSudoku()) {
+           if (solve()) {
+               solved = buildGrid(this.squares);
            }
        }
        return solved;

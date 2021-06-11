@@ -30,7 +30,7 @@ public class GridService {
     }
 
     public Grid solve(Grid g) {
-        return GridSolver.solveGrid(g);
-
+        GridSolver solver = new GridSolver(g);
+        return solver.getSolution();
     }
 }
