@@ -2,6 +2,9 @@ package com.amoghdambal.solvedoku.service;
 
 import com.amoghdambal.solvedoku.data.Grid;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class GridSolver {
     private static Integer[][] buildArray(Grid g) {
         String[] gridString = g.getGridRepresentation().split(",");
@@ -37,7 +40,89 @@ public class GridSolver {
     }
 
     private static boolean isLegalSudoku(Integer[][] squares) {
-        return false;
+        // check that each row, column, and subgrid is legal
+        return isLegalRows(squares) && isLegalColumns(squares) && isLegalSubgrids(squares);
+    }
+
+    private static boolean isLegalRows(Integer[][] squares) {
+        Set<Integer> duplicates;
+        for (Integer[] row : squares) {
+            int sum = 0;
+            duplicates = new HashSet<>();
+            for (Integer digit : row) {
+                if (digit == 0) {
+                    return false;
+                }
+                else if (duplicates.contains(digit)) {
+                    return false;
+                }
+                else {
+                    sum += digit;
+                    duplicates.add(digit);
+                }
+            }
+            if (sum != 45 || duplicates.size() != 9) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean isLegalColumns(Integer[][] squares) {
+        Set<Integer> duplicates;
+        for (int j = 0; j < 9; j++) {
+            int sum = 0;
+            duplicates = new HashSet<>();
+            for (int i = 0; i < 9; i++) {
+                Integer digit = squares[i][j];
+                if (digit == 0) {
+                    return false;
+                }
+                else if (duplicates.contains(digit)) {
+                    return false;
+                }
+                else {
+                    sum += digit;
+                    duplicates.add(digit);
+                }
+            }
+
+            if (sum != 45 || duplicates.size() == 9) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean isLegalSubgrids(Integer[][] squares) {
+        boolean valid = true;
+        for (int i = 0; i < 9 && valid; i += 3) {
+            for (int j = 0; j < 9 && valid; j += 3) {
+                valid = isLegalSubgrid(squares, i, j);
+            }
+        }
+        return valid;
+    }
+
+    private static boolean isLegalSubgrid(Integer[][] squares, int i, int j) {
+        int sum = 0;
+        Set<Integer> duplicates = new HashSet<>();
+        for (int x = i; x < i + 3; x++) {
+            for (int y = j; y < j + 3; j++) {
+                Integer digit = squares[i][j];
+                if (digit == 0) {
+                    return false;
+                }
+                else if (duplicates.contains(digit)) {
+                    return false;
+                }
+                else {
+                    sum += digit;
+                    duplicates.add(digit);
+                }
+            }
+        }
+        return sum == 45 && duplicates.size() == 9;
     }
 
     /**
