@@ -51,7 +51,30 @@ public class GridSolver {
      * @return true if you can place digit, false otherwise
      */
     private static boolean canPlace(int digit, int i, int j, Integer[][] squares) {
-        return isRowValid()
+        // validity of row
+        for (int x = 0; x < 9; x++) {
+            if (squares[x][j] == digit) {
+                return false;
+            }
+        }
+        // validity of column
+        for (int y = 0; y < 9; y++) {
+            if (squares[i][y] == digit) {
+                return false;
+            }
+        }
+        // validity of 3 x 3 square
+        int squareStartRow = i / 3 * 3;
+        int squareStartCol = j / 3 * 3;
+        for (int p = squareStartRow; p < squareStartRow + 3; p++) {
+            for (int q = squareStartCol; q < squareStartCol + 3; q++) {
+                boolean onSameSquare = p == i && q == j;
+                if (!onSameSquare && squares[p][q] == digit) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     private static class GridSolveObject {
