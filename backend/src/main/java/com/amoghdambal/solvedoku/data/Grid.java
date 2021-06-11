@@ -16,6 +16,9 @@ public class Grid {
         this.gridRepresentation = grid;
     }
 
+    public Grid(Grid g) {
+    }
+
     public String getId() {
         return this.id;
     }

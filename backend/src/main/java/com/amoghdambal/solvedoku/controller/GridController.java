@@ -16,6 +16,7 @@ public class GridController {
     @Autowired
     private GridService service;
 
+    /* Basic CRUD Mappings */
     @GetMapping("/{id}")
     public Grid getGrid(@PathVariable String id) {
         return service.find(id);
@@ -42,5 +43,12 @@ public class GridController {
     @DeleteMapping("/{id}")
     public void deleteGrid(@PathVariable String id) {
         this.service.delete(id);
+    }
+
+    /* Solver mappings */
+    @GetMapping("/solve")
+    public Grid solveGrid(@RequestBody Grid g) {
+        Grid solved = service.solve(g);
+        return solved;
     }
 }

@@ -28,4 +28,9 @@ public class GridService {
     public void delete(String id) {
         this.repository.deleteById(id);
     }
+
+    public Grid solve(Grid g) {
+        return GridSolver.solveGrid(g);
+
+    }
 }
